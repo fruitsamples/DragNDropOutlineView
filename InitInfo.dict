@@ -1,0 +1,46 @@
+/* This file was hand edited, but could just as easily have been made with PropertyListEditor.app */
+{   
+Group = OVRoot;
+    Entries = (
+    { 
+        Group = "Favorite Shows";
+        Entries =
+        (
+            {   Group = "Comedy";
+                Entries = (
+                    {   Group = "Simpsons";
+                        Entries = ("Monty", "Smithers", "Homer", "Bart", "Lisa", "Bobo", "Radioactive Boy");
+                    },
+                    {   Group = "Thank you, drive through";
+                        Entries = (Beavis, Chuck, Cartman, "Cletus Cash", "E.J. Jr.");
+                    },
+                    {   Group = "Just Fun";
+                        Entries = (Tooblar, Shatner, Bry, Loooooooooow, Al, Bud, Green, Knoxville);
+                    },
+                    Foo, Bar, BooFar,
+                );
+            },
+            {   Group = "Action";
+                Entries = (
+                    {   Group = "X-Treme!!!";
+                        Entries = ("Mr.V", Bulls, Farve, Gizmo);
+                    }
+                );
+            },
+            {
+                Group = "Science Fiction";
+                Entries = (Kark, Valen, Kosh, "Red Letter", "Fluffy Ears", "Pappa Smurf");
+            }
+        );
+    },
+    {
+        Group = Movies;
+        Entries = (Mischief, Mayhem, Soap);
+    },
+    {
+        Group = "Things That Rule";
+        Entries = (ObjC, Cocoa);
+    },
+    Eagle, Boiler, Tarheel
+    );
+}
