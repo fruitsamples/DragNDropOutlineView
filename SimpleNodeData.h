@@ -1,7 +1,8 @@
 /*
      File: SimpleNodeData.h
- Abstract: Represents the model object.
-  Version: 1.0
+ Abstract: Represents the model object. 10.7 Updates: Implemented NSPasteboardWriting and NSPasteboardReading for easier pasteboard support.
+ 
+  Version: 1.1
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -41,15 +42,14 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright (C) 2009 Apple Inc. All Rights Reserved.
+ Copyright (C) 2011 Apple Inc. All Rights Reserved.
  
- */
-
+*/
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 
-@interface SimpleNodeData : NSObject {
+@interface SimpleNodeData : NSObject<NSPasteboardWriting, NSPasteboardReading> {
 @private
     // ivars for the properties declared below
     NSString *name;

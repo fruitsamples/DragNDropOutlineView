@@ -1,7 +1,7 @@
 /*
      File: SimpleNodeData.m
- Abstract: Represents the model object.
-  Version: 1.0
+ Abstract: Simple object model implementation.
+  Version: 1.1
  
  Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
  Inc. ("Apple") in consideration of your agreement to the following
@@ -41,14 +41,15 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright (C) 2009 Apple Inc. All Rights Reserved.
+ Copyright (C) 2011 Apple Inc. All Rights Reserved.
  
- */
-
+*/
 
 #import "SimpleNodeData.h"
 
 @implementation SimpleNodeData
+
+#pragma mark -
 
 - (id)init {
     self = [super init];
@@ -90,6 +91,99 @@
 - (NSString *)description {
     return [NSString stringWithFormat:@"%@ - '%@' expandable: %d, selectable: %d, container: %d", [super description], self.name, self.expandable, self.selectable, self.container];
 }
+
+#pragma mark -
+#pragma mark NSPasteboardWriting support
+
+- (NSArray *)writableTypesForPasteboard:(NSPasteboard *)pasteboard {
+    // These are the types we can write.
+    NSArray *ourTypes = [NSArray arrayWithObjects:NSPasteboardTypeString, nil];
+    // Also include the images on the pasteboard too!
+    NSArray *imageTypes = [self.image writableTypesForPasteboard:pasteboard];
+    if (imageTypes) {
+        ourTypes = [ourTypes arrayByAddingObjectsFromArray:imageTypes];
+    }
+    return ourTypes;
+}
+
+- (NSPasteboardWritingOptions)writingOptionsForType:(NSString *)type pasteboard:(NSPasteboard *)pasteboard {
+    if ([type isEqualToString:NSPasteboardTypeString]) {
+        return 0;
+    }
+    // Everything else is delegated to the image
+    if ([self.image respondsToSelector:@selector(writingOptionsForType:pasteboard:)]) {            
+        return [self.image writingOptionsForType:type pasteboard:pasteboard];
+    }
+    
+    return 0;
+}
+
+- (id)pasteboardPropertyListForType:(NSString *)type {
+    if ([type isEqualToString:NSPasteboardTypeString]) {
+        return self.name;
+    } else {
+        return [self.image pasteboardPropertyListForType:type];
+    }
+}
+
+#pragma mark -
+#pragma mark  NSPasteboardReading support
+
++ (NSArray *)readableTypesForPasteboard:(NSPasteboard *)pasteboard {
+    // We allow creation from URLs so Finder items can be dragged to us
+    return [NSArray arrayWithObjects:(id)kUTTypeURL, NSPasteboardTypeString, nil];
+}
+
++ (NSPasteboardReadingOptions)readingOptionsForType:(NSString *)type pasteboard:(NSPasteboard *)pasteboard {
+    if ([type isEqualToString:NSPasteboardTypeString] || UTTypeConformsTo((CFStringRef)type, kUTTypeURL)) {
+	return NSPasteboardReadingAsString;
+    } else {
+	return NSPasteboardReadingAsData; 
+    }
+}
+
+- (id)initWithPasteboardPropertyList:(id)propertyList ofType:(NSString *)type {
+    // See if an NSURL can be created from this type
+    if (UTTypeConformsTo((CFStringRef)type, kUTTypeURL)) {
+        // It does, so create a URL and use that to initialize our properties
+        NSURL *url = [[[NSURL alloc] initWithPasteboardPropertyList:propertyList ofType:type] autorelease];
+        self = [super init];
+        self.name = [url lastPathComponent];
+        // Make sure we have a name
+        if (self.name == nil) {
+            self.name = [url path];
+            if (self.name == nil) {
+                self.name = @"Untitled";
+            }
+        }
+        self.selectable = YES;
+        
+        // See if the URL was a container; if so, make us marked as a container too
+        NSNumber *value;
+        if ([url getResourceValue:&value forKey:NSURLIsDirectoryKey error:NULL] && [value boolValue]) {
+            self.container = YES;
+            self.expandable = YES;
+        } else {
+            self.container = NO; 
+            self.expandable = NO;
+        }
+
+        NSImage *localImage;
+        if ([url getResourceValue:&localImage forKey:NSURLEffectiveIconKey error:NULL] && localImage) {
+            self.image = localImage;
+        }
+        
+    } else if ([type isEqualToString:NSPasteboardTypeString]) {
+        self = [super init];
+        self.name = propertyList;
+        self.selectable = YES;
+    } else {
+        NSAssert(NO, @"internal error: type not supported");
+    }        
+    return self;
+}
+
+
 
 @end
 
